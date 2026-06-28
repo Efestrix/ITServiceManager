@@ -1,0 +1,6 @@
+@ITServiceManager.API_HostAddress = http://localhost:5228
+
+GET {{ITServiceManager.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
