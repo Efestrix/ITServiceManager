@@ -1,5 +1,7 @@
 ﻿using ITServiceManager.API.Data;
+using ITServiceManager.API.Dtos.Customer;
 using ITServiceManager.API.Entities;
+using ITServiceManager.API.Services.Customer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,19 +12,58 @@ namespace ITServiceManager.API.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
-        private readonly DatabaseContext database;
+        private readonly ICustomerService _service;
 
-        public CustomerController(DatabaseContext database)
+        public CustomerController(ICustomerService service)
         {
-            this.database = database;
+            _service = service;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllCustomers()
+        public async Task<IActionResult> GetAll()
         {
-            List<CustomerEntity> customers = await database.Customers.ToListAsync();
+            return Ok(await _service.GetAllAsync());
+        }
 
-            return Ok(customers);
+        [HttpGet("id")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            CustomerDto? customer = await _service.GetByIdAsync(id);
+
+            if (customer == null)
+                return NotFound();
+
+            return Ok(customer);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateCustomerDto dto)
+        {
+            CustomerDto customer = await _service.CreateAsync(dto);
+
+            return CreatedAtAction(nameof(GetById),
+                new { id = customer.Id }, 
+                customer);
+        }
+        [HttpPut("id")]
+        public async Task<IActionResult> Update(int id, UpdateCustomerDto dto)
+        {
+            bool success = await _service.UpdateAsync(id, dto);
+
+            if (!success)
+                return NotFound();
+
+            return NoContent();
+        }
+        [HttpDelete("id")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            bool success = await _service.DeleteAsync(id);
+
+            if (!success)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }

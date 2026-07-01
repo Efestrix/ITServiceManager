@@ -1,5 +1,7 @@
 
 using ITServiceManager.API.Data;
+using ITServiceManager.API.Services;
+using ITServiceManager.API.Services.Customer;
 using Microsoft.EntityFrameworkCore;
 
 namespace ITServiceManager.API
@@ -18,6 +20,8 @@ namespace ITServiceManager.API
                     connection,
                     ServerVersion.AutoDetect(connection));
             });
+
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
