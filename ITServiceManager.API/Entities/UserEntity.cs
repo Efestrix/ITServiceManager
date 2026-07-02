@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 
 namespace ITServiceManager.API.Entities
@@ -6,37 +7,38 @@ namespace ITServiceManager.API.Entities
     [Table("users")]
     public class UserEntity
     {
+        [Key]
         [Column("Id")]
         public int Id {  get; set; }
+
+        [Required]
         [Column("Username")]
-        public string Username {  get; set; }
+        [MaxLength(50)]
+        public string Username { get; set; } = string.Empty;
+
+        [Required]
+        public string PasswordHash { get; set; } = string.Empty;
+
+        [Required]
         [Column("FirstName")]
-        public string FirstName {  get; set; }
+        [MaxLength(50)]
+        public string FirstName { get; set; } = string.Empty;
+
         [Column("LastName")]
-        public string LastName {  get; set; }
-        [Column("Email")]
-        public string Email { get; set; }
-        [Column("Role")]
-        public RoleEntity Role { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public string LastName { get; set; } = string.Empty;
 
-        public UserEntity()
-        {
-            Id = 0;
-            Username = string.Empty;
-            FirstName = string.Empty;
-            LastName = string.Empty;
-            Email = string.Empty;
-            Role = null!;
-        }
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
 
-        public UserEntity(string username, string firstName, string lastName, string email, RoleEntity role)
-        {
-            Id = 0;
-            Username = username;
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
-            Role = role;
-        }
+        [Required]
+        public UserRole Role { get; set; }
+
+        public ICollection<RepairOrderEntity> RepairOrders { get; set; } = new List<RepairOrderEntity>();
+
+
+        public UserEntity() { }
     }
 }
