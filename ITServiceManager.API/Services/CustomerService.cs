@@ -28,6 +28,11 @@ namespace ITServiceManager.API.Services
 
         public async Task<CustomerDto?> GetByIdAsync(int id)
         {
+            bool customerExists = await _context.Customers.AnyAsync(c => c.Id == id);
+
+            if (!customerExists)
+                return null;
+
             CustomerEntity? customer = await _context.Customers.FindAsync(id);
 
             if (customer == null)
@@ -52,6 +57,11 @@ namespace ITServiceManager.API.Services
         }
         public async Task<bool> UpdateAsync(int id, UpdateCustomerDto dto)
         {
+            bool customerExists = await _context.Customers.AnyAsync(c => c.Id == id);
+
+            if (!customerExists)
+                return false;
+
             CustomerEntity? entity = await _context.Customers.FindAsync(id);
 
             if (entity == null)
@@ -71,6 +81,11 @@ namespace ITServiceManager.API.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
+            bool customerExists = await _context.Customers.AnyAsync(c => c.Id == id);
+
+            if (!customerExists)
+                return false;
+
             CustomerEntity? entity = await _context.Customers.FindAsync(id);
 
             if (entity == null)
