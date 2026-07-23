@@ -34,10 +34,7 @@ namespace ITServiceManager.API.Controllers
         [HttpPut("id")]
         public async Task<IActionResult> Update(int id, UpdatePhotoDto dto)
         {
-            bool success = await _service.UpdateAsync(id, dto);
-
-            if (!success)
-                return NotFound();
+            await _service.UpdateAsync(id, dto);
 
             return NoContent();
         }
@@ -45,10 +42,7 @@ namespace ITServiceManager.API.Controllers
         [HttpDelete("id")]
         public async Task<IActionResult> Delete(int id)
         {
-            bool success = await _service.DeleteAsync(id);
-
-            if (!success)
-                return NotFound();
+            await _service.DeleteAsync(id);
 
             return NoContent();
         }

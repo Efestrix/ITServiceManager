@@ -1,7 +1,9 @@
 
 using ITServiceManager.API.Data;
+using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services;
 using ITServiceManager.API.Services.Customer;
+using ITServiceManager.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ITServiceManager.API
@@ -22,6 +24,13 @@ namespace ITServiceManager.API
             });
 
             builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IDeviceService, DeviceService>();
+            builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
+            builder.Services.AddScoped<IPhotoService, PhotoService>();
+            builder.Services.AddScoped<IRepairHistoryService, RepairHistoryService>();
+            builder.Services.AddScoped<IRepairOrderService, RepairOrderService>();
+            builder.Services.AddScoped<IRepairStatusService, RepairStatusService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -36,6 +45,8 @@ namespace ITServiceManager.API
             }
 
             app.UseHttpsRedirection();
+
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseAuthorization();
 

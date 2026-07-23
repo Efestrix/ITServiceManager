@@ -2,19 +2,18 @@
 using ITServiceManager.API.Dtos.User;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Mappings;
+using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services.Interfaces;
 using ITServiceManager.API.Validators;
 using Microsoft.EntityFrameworkCore;
 
 namespace ITServiceManager.API.Services
 {
-    public class UserService : IUserService
+    public class UserService : BaseService, IUserService
     {
-        private readonly DatabaseContext _context;
-
         public UserService(DatabaseContext context)
+            : base(context)
         {
-            _context = context;
         }
         public async Task<IEnumerable<UserDto>> GetAllAsync()
         {
@@ -27,24 +26,25 @@ namespace ITServiceManager.API.Services
 
         public async Task<UserDto?> GetByIdAsync(int id)
         {
-            bool exists = await _context.Users.AnyAsync(u => u.Id == id);
-
-            if (!exists)
-                return null;
-
             UserEntity? user = await _context.Users.FindAsync(id);
 
             if (user == null)
-                return null;
+                throw new NotFoundException($"User with id {id} was not found");
 
             return UserMapping.ToDto(user);
         }
         public async Task<UserDto> CreateAsync(CreateUserDto dto)
         {
+            if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
+                throw new ValidationException("Username already exists.");
+
+            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+                throw new ValidationException("Email already exists.");
+
             ValidationResult validation = UserValidator.Validate(dto);
 
             if (!validation.IsValid)
-                throw new ArgumentException(string.Join(Environment.NewLine, validation.Errors));
+                throw new ValidationException(string.Join(Environment.NewLine, validation.Errors));
 
             UserEntity user = UserMapping.ToEntity(dto);
 
@@ -55,45 +55,32 @@ namespace ITServiceManager.API.Services
             return UserMapping.ToDto(user);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            bool exists = await _context.Users.AnyAsync(u => u.Id == id);
-
-            if (!exists)
-                return false;
-
             UserEntity? user = await _context.Users.FindAsync(id);
 
             if (user == null)
-                return false;
+                throw new NotFoundException($"User with id {id} was not found.");
 
             _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
 
-            return true;
+            await _context.SaveChangesAsync();
         }
-        public async Task<bool> UpdateAsync(int id, UpdateUserDto dto)
+        public async Task UpdateAsync(int id, UpdateUserDto dto)
         {
             ValidationResult validation = UserValidator.Validate(dto);
 
             if (!validation.IsValid)
-                throw new ArgumentException(string.Join(Environment.NewLine, validation.Errors));
-
-            bool exists = await _context.Users.AnyAsync(u => u.Id == id);
-
-            if (!exists)
-                return false;
+                throw new ValidationException(string.Join(Environment.NewLine, validation.Errors));
 
             UserEntity? user = await _context.Users.FindAsync(id);
 
             if (user == null)
-                return false;
+                throw new NotFoundException($"User with id {id} was not found.");
 
             UserMapping.UpdateEntity(user, dto);
 
             await _context.SaveChangesAsync();
-
-            return true;
         }
     }
 }

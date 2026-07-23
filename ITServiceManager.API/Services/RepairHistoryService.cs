@@ -2,19 +2,18 @@
 using ITServiceManager.API.Dtos.RepairHistory;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Mappings;
+using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services.Interfaces;
 using ITServiceManager.API.Validators;
 using Microsoft.EntityFrameworkCore;
 
 namespace ITServiceManager.API.Services
 {
-    public class RepairHistoryService : IRepairHistoryService
+    public class RepairHistoryService : BaseService, IRepairHistoryService
     {
-        private readonly DatabaseContext _context;
-
         public RepairHistoryService(DatabaseContext context)
+            : base(context)
         {
-            _context = context;
         }
         public async Task<IEnumerable<RepairHistoryDto>> GetAllAsync()
         {
@@ -29,6 +28,8 @@ namespace ITServiceManager.API.Services
             if (!validation.IsValid)
                 throw new ArgumentException(string.Join(Environment.NewLine, validation.Errors));
 
+            await ValidateRepairOrder(dto.RepairOrderId);
+
             RepairHistoryEntity entity = RepairHistoryMapping.ToEntity(dto);
 
             _context.RepairHistory.Add(entity);
@@ -38,26 +39,16 @@ namespace ITServiceManager.API.Services
             return RepairHistoryMapping.ToDto(entity);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            bool repairHistory = await _context.RepairHistory.AnyAsync(r => r.Id == id);
-
-            if (!repairHistory)
-                return false;
-
-            RepairHistoryEntity? entity = await _context.RepairHistory.FindAsync(id);
-
-            if (entity == null)
-                return false;
+            RepairHistoryEntity entity = await GetRepairHistoryAsync(id);
 
             _context.RepairHistory.Remove(entity);
 
             await _context.SaveChangesAsync();
-
-            return true;
         }
 
-        public async Task<bool> UpdateAsync(int id, UpdateRepairHistoryDto dto)
+        public async Task UpdateAsync(int id, UpdateRepairHistoryDto dto)
         {
             ValidationResult validation = RepairHistoryValidator.Validate(dto);
 
@@ -66,14 +57,32 @@ namespace ITServiceManager.API.Services
 
             RepairHistoryEntity? entity = await _context.RepairHistory.FindAsync(id);
 
-            if (entity == null)
-                return false;
+            await ValidateRepairOrder(dto.RepairOrderId);
 
             RepairHistoryMapping.UpdateEntity(entity, dto);
 
             await _context.SaveChangesAsync();
+        }
+        /// <summary>
+        /// Vrátí historii opravy nebo vyhodí NotFoundException.
+        /// </summary>
+        private async Task<RepairHistoryEntity> GetRepairHistoryAsync(int id)
+        {
+            RepairHistoryEntity? entity = await _context.RepairHistory.FindAsync(id);
 
-            return true;
+            if (entity == null)
+                throw new NotFoundException($"Repair history with id {id} was not found.");
+
+            return entity;
+        }
+
+        /// <summary>
+        /// Ověří existenci servisní zakázky.
+        /// </summary>
+        private async Task ValidateRepairOrder(int repairOrderId)
+        {
+            if (!await _context.RepairOrders.AnyAsync(r => r.Id == repairOrderId))
+                throw new ValidationException("Repair order does not exist.");
         }
     }
 }

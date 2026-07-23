@@ -9,7 +9,7 @@ namespace ITServiceManager.API.Services.Interfaces
 
         Task<RepairHistoryDto> CreateAsync(CreateRepairHistoryDto dto);
 
-        Task<bool> UpdateAsync(int id, UpdateRepairHistoryDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task UpdateAsync(int id, UpdateRepairHistoryDto dto);
+        Task DeleteAsync(int id);
     }
 }

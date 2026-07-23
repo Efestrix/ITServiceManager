@@ -2,19 +2,18 @@
 using ITServiceManager.API.Dtos.RepairOrder;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Mappings;
+using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services.Interfaces;
 using ITServiceManager.API.Validators;
 using Microsoft.EntityFrameworkCore;
 
 namespace ITServiceManager.API.Services
 {
-    public class RepairOrderService : IRepairOrderService
+    public class RepairOrderService : BaseService, IRepairOrderService
     {
-        private readonly DatabaseContext _context;
-
         public RepairOrderService(DatabaseContext context)
+            : base(context)
         {
-            _context = context;
         }
         public async Task<IEnumerable<RepairOrderDto>> GetAllAsync()
         {
@@ -57,29 +56,23 @@ namespace ITServiceManager.API.Services
             return RepairOrderMapping.ToDto(entity);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            bool repairOrderExists = await _context.Devices.AnyAsync(c => c.Id == id);
-
-            if (!repairOrderExists)
-                return false;
-
             RepairOrderEntity? entity = await _context.RepairOrders.FindAsync(id);
 
             if (entity == null)
-                return false;
+                throw new NotFoundException("Not Found");
 
             _context.RepairOrders.Remove(entity);
-            await _context.SaveChangesAsync();
 
-            return true;
+            await _context.SaveChangesAsync();
         }
-        public async Task<bool> UpdateAsync(int id, UpdateRepairOrderDto dto)
+        public async Task UpdateAsync(int id, UpdateRepairOrderDto dto)
         {
             bool repairOrderExists = await _context.Devices.AnyAsync(c => c.Id == id);
 
             if (!repairOrderExists)
-                return false;
+                throw new NotFoundException("Not Found");
 
             ValidationResult validation = RepairOrderValidator.Validate(dto);
 
@@ -89,15 +82,13 @@ namespace ITServiceManager.API.Services
             RepairOrderEntity? repairOrder = await _context.RepairOrders.FindAsync(id);
 
             if (repairOrder == null)
-                return false;
+                throw new NotFoundException("Not Found");
 
             ValidateRepairOrder(repairOrder);
 
             RepairOrderMapping.UpdateEntity(repairOrder, dto);
 
             await _context.SaveChangesAsync();
-
-            return true;
         }
         private void ValidateRepairOrder(RepairOrderEntity entity)
         {

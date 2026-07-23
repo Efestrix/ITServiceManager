@@ -7,13 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ITServiceManager.API.Services
 {
-    public class DeviceTypeService : IDeviceTypeService
+    public class DeviceTypeService : BaseService, IDeviceTypeService
     {
-        private readonly DatabaseContext _context;
-
         public DeviceTypeService(DatabaseContext context)
+            : base(context)
         {
-            _context = context;
         }
 
         public async Task<IEnumerable<DeviceTypeDto>> GetAllAsync()

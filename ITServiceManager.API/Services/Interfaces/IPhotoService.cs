@@ -9,7 +9,7 @@ namespace ITServiceManager.API.Services.Interfaces
 
         Task<PhotoDto> CreateAsync(CreatePhotoDto dto);
 
-        Task<bool> UpdateAsync(int id, UpdatePhotoDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task UpdateAsync(int id, UpdatePhotoDto dto);
+        Task DeleteAsync(int id);
     }
 }

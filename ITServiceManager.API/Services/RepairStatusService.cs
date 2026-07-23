@@ -2,18 +2,17 @@
 using ITServiceManager.API.Dtos.RepairStatus;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Mappings;
+using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ITServiceManager.API.Services
 {
-    public class RepairStatusService : IRepairStatusService
+    public class RepairStatusService : BaseService, IRepairStatusService
     {
-        private readonly DatabaseContext _context;
-
         public RepairStatusService(DatabaseContext context)
+            : base(context)
         {
-            _context = context;
         }
 
         public async Task<IEnumerable<RepairStatusDto>> GetAllAsync()
@@ -27,15 +26,10 @@ namespace ITServiceManager.API.Services
 
         public async Task<RepairStatusDto?> GetByIdAsync(int id)
         {
-            bool exists = await _context.RepairStatus.AnyAsync(rs => rs.Id == id);
-
-            if (!exists)
-                return null;
-
             RepairStatusEntity? repairStatus = await _context.RepairStatus.FindAsync(id);
 
             if (repairStatus == null)
-                return null;
+                throw new NotFoundException($"Status with id {id} was not found.");
 
             return RepairStatusMapping.ToDto(repairStatus);
         }
