@@ -1,4 +1,5 @@
-﻿using ITServiceManager.API.Dtos.Customer;
+﻿using ITServiceManager.API.Dtos.Authentication;
+using ITServiceManager.API.Dtos.Customer;
 using ITServiceManager.API.Dtos.User;
 using ITServiceManager.API.Entities;
 
@@ -30,6 +31,13 @@ namespace ITServiceManager.API.Mappings
                 LastName = dto.LastName,
                 Email = dto.Email,
                 Role = Enum.Parse<UserRole>(dto.Role)
+            };
+        }
+        public static UserEntity ToEntity(RegisterDto dto, string passwordHash)
+        {
+            return new UserEntity
+            {
+                PasswordHash = passwordHash
             };
         }
 

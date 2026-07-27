@@ -4,7 +4,10 @@ using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services;
 using ITServiceManager.API.Services.Customer;
 using ITServiceManager.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ITServiceManager.API
 {
@@ -14,6 +17,33 @@ namespace ITServiceManager.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+
+                options.SaveToken = true;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+                };
+            });
+
             builder.Services.AddDbContext<DatabaseContext>(options =>
             {
                 string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -22,6 +52,8 @@ namespace ITServiceManager.API
                     connection,
                     ServerVersion.AutoDetect(connection));
             });
+
+            builder.Services.AddAuthorization();
 
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IDeviceService, DeviceService>();
@@ -50,6 +82,9 @@ namespace ITServiceManager.API
 
             app.UseAuthorization();
 
+            app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.MapControllers();
 
