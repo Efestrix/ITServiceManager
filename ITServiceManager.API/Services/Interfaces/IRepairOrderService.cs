@@ -11,7 +11,7 @@ namespace ITServiceManager.API.Services.Interfaces
 
         Task<RepairOrderDto> CreateAsync(CreateRepairOrderDto dto);
 
-        Task<bool> UpdateAsync(int id, UpdateRepairOrderDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task UpdateAsync(int id, UpdateRepairOrderDto dto);
+        Task DeleteAsync(int id);
     }
 }

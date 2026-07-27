@@ -2,6 +2,7 @@
 using ITServiceManager.API.Dtos.Customer;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Mappings;
+using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services.Customer;
 using ITServiceManager.API.Validators;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -9,13 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ITServiceManager.API.Services
 {
-    public class CustomerService : ICustomerService
+    public class CustomerService : BaseService, ICustomerService
     {
-        private readonly DatabaseContext _context;
-
         public CustomerService(DatabaseContext context)
+            : base(context)
         {
-            _context = context;
         }
         public async Task<IEnumerable<CustomerDto>> GetAllAsync()
         {
@@ -55,17 +54,17 @@ namespace ITServiceManager.API.Services
 
             return CustomerMapping.ToDto(customer);
         }
-        public async Task<bool> UpdateAsync(int id, UpdateCustomerDto dto)
+        public async Task UpdateAsync(int id, UpdateCustomerDto dto)
         {
             bool customerExists = await _context.Customers.AnyAsync(c => c.Id == id);
 
             if (!customerExists)
-                return false;
+                throw new NotFoundException("Not Found");
 
             CustomerEntity? entity = await _context.Customers.FindAsync(id);
 
             if (entity == null)
-                return false;
+                throw new NotFoundException("Not Found");
 
             ValidationResult validation = CustomerValidator.Validate(dto);
 
@@ -75,27 +74,23 @@ namespace ITServiceManager.API.Services
             CustomerMapping.UpdateEntity(entity, dto);
 
             await _context.SaveChangesAsync();
-
-            return true;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             bool customerExists = await _context.Customers.AnyAsync(c => c.Id == id);
 
             if (!customerExists)
-                return false;
+                throw new NotFoundException("Not Found");
 
             CustomerEntity? entity = await _context.Customers.FindAsync(id);
 
             if (entity == null)
-                return false;
+                throw new NotFoundException("Not Found");
 
             _context.Customers.Remove(entity);
 
             await _context.SaveChangesAsync();
-
-            return true;
         }
     }
 }

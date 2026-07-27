@@ -11,7 +11,7 @@ namespace ITServiceManager.API.Services.Customer
 
         Task<CustomerDto> CreateAsync(CreateCustomerDto dto);
 
-        Task<bool> UpdateAsync(int id, UpdateCustomerDto dto); 
-        Task<bool> DeleteAsync(int id);
+        Task UpdateAsync(int id, UpdateCustomerDto dto); 
+        Task DeleteAsync(int id);
     }
 }

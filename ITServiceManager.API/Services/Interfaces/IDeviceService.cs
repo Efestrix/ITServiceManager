@@ -11,7 +11,7 @@ namespace ITServiceManager.API.Services.Interfaces
 
         Task<DeviceDto> CreateAsync(CreateDeviceDto dto);
 
-        Task<bool> UpdateAsync(int id, UpdateDeviceDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task UpdateAsync(int id, UpdateDeviceDto dto);
+        Task DeleteAsync(int id);
     }
 }

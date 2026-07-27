@@ -1,4 +1,4 @@
-﻿using ITServiceManager.API.Dtos.Device;
+﻿using ITServiceManager.API.Dtos.User;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -8,11 +8,11 @@ namespace ITServiceManager.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DeviceController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly IDeviceService _service;
+        private readonly IUserService _service;
 
-        public DeviceController(IDeviceService service)
+        public UserController(IUserService service)
         {
             _service = service;
         }
@@ -23,39 +23,33 @@ namespace ITServiceManager.API.Controllers
             return Ok(await _service.GetAllAsync());
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            DeviceDto? device = await _service.GetByIdAsync(id);
+            UserDto? user = await _service.GetByIdAsync(id);
 
-            if (device == null)
+            if (user == null)
                 return NotFound();
 
-            return Ok(device);
+            return Ok(user);
         }
-
         [HttpPost]
-        public async Task<IActionResult> Create(CreateDeviceDto dto)
+        public async Task<IActionResult> Create(CreateUserDto dto)
         {
-            DeviceDto? createdDevice = await _service.CreateAsync(dto);
+            UserDto createdUser = await _service.CreateAsync(dto);
 
-            if (createdDevice == null)
-                return BadRequest();
-
-            return CreatedAtAction(nameof(GetById), 
-                new { id = createdDevice.Id }, 
-                createdDevice);
+            return CreatedAtAction(nameof(GetById),
+                new { id = createdUser.Id },
+                createdUser);
         }
-
-        [HttpPut("id")]
-        public async Task<IActionResult> Update(int id, UpdateDeviceDto dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, UpdateUserDto dto)
         {
             await _service.UpdateAsync(id, dto);
 
             return NoContent();
         }
-
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _service.DeleteAsync(id);

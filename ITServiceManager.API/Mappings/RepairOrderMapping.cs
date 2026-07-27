@@ -17,7 +17,8 @@ namespace ITServiceManager.API.Mappings
                 CreatedAt = entity.CreatedAt,
                 FinishedAt = entity.FinishedAt,
                 DeviceId = entity.DeviceId,
-
+                TechnicianId = entity.TechnicianId,
+                StatusId = entity.StatusId
             };
         }
 
