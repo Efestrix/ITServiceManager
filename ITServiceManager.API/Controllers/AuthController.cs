@@ -1,6 +1,7 @@
 ﻿using ITServiceManager.API.Dtos.Authentication;
 using ITServiceManager.API.Services;
 using ITServiceManager.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace ITServiceManager.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private IAuthService _service;

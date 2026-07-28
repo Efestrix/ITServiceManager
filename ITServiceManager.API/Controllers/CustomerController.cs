@@ -2,6 +2,7 @@
 using ITServiceManager.API.Dtos.Customer;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Services.Customer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,12 +21,14 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("id")]
+        [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
             CustomerDto? customer = await _service.GetByIdAsync(id);
@@ -37,6 +40,7 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create(CreateCustomerDto dto)
         {
             CustomerDto customer = await _service.CreateAsync(dto);
@@ -53,6 +57,7 @@ namespace ITServiceManager.API.Controllers
             return NoContent();
         }
         [HttpDelete("id")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             await _service.DeleteAsync(id);

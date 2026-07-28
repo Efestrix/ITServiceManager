@@ -1,5 +1,6 @@
 ﻿using ITServiceManager.API.Dtos.RepairOrder;
 using ITServiceManager.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pomelo.EntityFrameworkCore.MySql.Query.Internal;
@@ -8,6 +9,7 @@ namespace ITServiceManager.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Technician")]
     public class RepairOrderController : ControllerBase
     {
         private readonly IRepairOrderService _service;

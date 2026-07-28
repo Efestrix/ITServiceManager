@@ -1,5 +1,6 @@
 ﻿using ITServiceManager.API.Dtos.Photo;
 using ITServiceManager.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace ITServiceManager.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Technician")]
     public class PhotoController : ControllerBase
     {
         private readonly IPhotoService _service;

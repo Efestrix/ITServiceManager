@@ -1,6 +1,7 @@
 ﻿using ITServiceManager.API.Dtos.Device;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,12 +19,14 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _service.GetAllAsync());
         }
 
         [HttpGet("id")]
+        [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
             DeviceDto? device = await _service.GetByIdAsync(id);
@@ -35,6 +38,7 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create(CreateDeviceDto dto)
         {
             DeviceDto? createdDevice = await _service.CreateAsync(dto);
@@ -56,6 +60,7 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpDelete("id")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             await _service.DeleteAsync(id);
