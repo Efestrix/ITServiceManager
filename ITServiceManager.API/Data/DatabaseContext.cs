@@ -9,7 +9,6 @@ namespace ITServiceManager.API.Data
             : base(options)
         {
         }
-
         public DbSet<CustomerEntity> Customers => Set<CustomerEntity>();
         public DbSet<DeviceEntity> Devices => Set<DeviceEntity>();
         public DbSet<DeviceTypeEntity> DeviceTypes => Set<DeviceTypeEntity>();

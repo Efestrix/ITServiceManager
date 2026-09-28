@@ -1,15 +1,14 @@
 ﻿using ITServiceManager.API.Data;
 using ITServiceManager.API.Dtos.Authentication;
+using ITServiceManager.API.Dtos.User;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Mappings;
 using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services.Interfaces;
 using ITServiceManager.API.Validators;
-using ITServiceManager.API.Validators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using System.Text;
 
@@ -18,11 +17,16 @@ namespace ITServiceManager.API.Services
     public class AuthService : BaseService, IAuthService
     {
         private readonly IConfiguration _config;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(DatabaseContext context, IConfiguration config)
+        public AuthService(
+            DatabaseContext context, 
+            IConfiguration config,
+            ILogger<AuthService> logger)
             : base(context)
         {
             _config = config;
+            _logger = logger;
         }
         public async Task RegisterAsync(RegisterDto dto)
         {
@@ -56,12 +60,30 @@ namespace ITServiceManager.API.Services
                 .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
             if (user == null)
+            {
+                _logger.LogWarning(
+                    "Failed login attempt for username {Username}.",
+                    dto.Username);
+
                 throw new UnauthorizedException("Invalid username");
+            }
+                
 
             bool passwordValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
 
             if (!passwordValid)
+            {
+                _logger.LogWarning(
+                    "Failed login attempt for username {Username}.",
+                    dto.Username);
+
                 throw new UnauthorizedException("Invalid password");
+            }
+                
+
+            _logger.LogInformation(
+                "User {Username} logged in successfully.",
+                user.Username);
 
             string token = GenerateJwtToken(user);
 
@@ -100,6 +122,17 @@ namespace ITServiceManager.API.Services
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);    
+        }
+
+        public async Task<UserDto> GetMeAsync(int userId)
+        {
+            UserEntity? user = 
+                await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new NotFoundException("User not found.");
+
+            return UserMapping.ToDto(user);
         }
     }
 }

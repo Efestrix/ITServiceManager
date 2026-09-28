@@ -5,7 +5,7 @@ namespace ITServiceManager.API.Services.Interfaces
 {
     public interface IDeviceService
     {
-        Task<IEnumerable<DeviceDto>> GetAllAsync();
+        Task<IEnumerable<DeviceDto>> GetAllAsync(DeviceQueryDto queryDto);
 
         Task<DeviceDto?> GetByIdAsync(int id);
 

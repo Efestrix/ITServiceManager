@@ -2,6 +2,7 @@
 using ITServiceManager.API.Dtos.DeviceType;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Mappings;
+using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,12 +29,12 @@ namespace ITServiceManager.API.Services
             bool deviceType = await _context.DeviceTypes.AnyAsync(d => d.Id == id);
 
             if (!deviceType)
-                return null;
-            
+                throw new NotFoundException("Device type does not exist.");
+
             DeviceTypeEntity? deviceTypeEntity = await _context.DeviceTypes.FindAsync(id);
 
             if (deviceTypeEntity == null)
-                return null;
+                throw new NotFoundException("Device type does not exist.");
 
             return DeviceTypeMapping.ToDto(deviceTypeEntity);
         }

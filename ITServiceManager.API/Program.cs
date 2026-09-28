@@ -1,4 +1,3 @@
-
 using ITServiceManager.API.Data;
 using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services;
@@ -63,6 +62,7 @@ namespace ITServiceManager.API
             builder.Services.AddScoped<IRepairOrderService, RepairOrderService>();
             builder.Services.AddScoped<IRepairStatusService, RepairStatusService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -79,8 +79,6 @@ namespace ITServiceManager.API
             app.UseHttpsRedirection();
 
             app.UseMiddleware<ExceptionMiddleware>();
-
-            app.UseAuthorization();
 
             app.UseAuthentication();
 

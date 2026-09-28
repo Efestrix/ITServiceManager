@@ -6,6 +6,7 @@ using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services.Interfaces;
 using ITServiceManager.API.Validators;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ITServiceManager.API.Services
 {
@@ -15,13 +16,38 @@ namespace ITServiceManager.API.Services
             : base(context)
         {
         }
-        public async Task<IEnumerable<DeviceDto>> GetAllAsync()
+        public async Task<IEnumerable<DeviceDto>> GetAllAsync(
+            DeviceQueryDto queryDto)
         {
-            List<DeviceEntity> devices = await _context.Devices.ToListAsync(); 
-            
-            return devices
-                .Select(DeviceMapping.ToDto)
-                .ToList();
+            IQueryable<DeviceEntity> devices = _context.Devices;
+
+            if (!string.IsNullOrWhiteSpace(queryDto.Name))
+            {
+                devices = devices.Where(
+                    d => d.Model.Contains(queryDto.Name));
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryDto.SerialNumber))
+            {
+                devices = devices.Where(
+                    d => d.SerialNumber.Contains(queryDto.SerialNumber));
+            }
+
+            if (queryDto.DeviceTypeId.HasValue)
+            {
+                devices = devices.Where(
+                    d => d.DeviceTypeId == queryDto.DeviceTypeId.Value);
+            }
+
+            if (queryDto.CustomerId.HasValue)
+            {
+                devices = devices.Where(
+                    d => d.CustomerId == queryDto.CustomerId.Value);
+            }
+
+            List<DeviceEntity> result = await devices.ToListAsync();
+
+            return result.Select(DeviceMapping.ToDto);
         }
         public async Task<DeviceDto?> GetByIdAsync(int id)
         {

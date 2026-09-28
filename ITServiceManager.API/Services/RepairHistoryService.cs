@@ -57,6 +57,9 @@ namespace ITServiceManager.API.Services
 
             RepairHistoryEntity? entity = await _context.RepairHistory.FindAsync(id);
 
+            if (entity == null)
+                throw new NotFoundException($"Repair history with id {id} was not found.");
+
             await ValidateRepairOrder(dto.RepairOrderId);
 
             RepairHistoryMapping.UpdateEntity(entity, dto);

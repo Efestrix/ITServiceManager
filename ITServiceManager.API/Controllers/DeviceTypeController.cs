@@ -1,11 +1,13 @@
 ﻿using ITServiceManager.API.Dtos.DeviceType;
 using ITServiceManager.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ITServiceManager.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/device_type")]
     [ApiController]
     public class DeviceTypeController : ControllerBase
     {
@@ -20,8 +22,8 @@ namespace ITServiceManager.API.Controllers
         {
             return Ok(await _service.GetAllAsync());
         }
-        [HttpGet("id")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
             DeviceTypeDto? deviceType = await _service.GetByIdAsync(id);
 

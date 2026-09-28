@@ -36,7 +36,7 @@ namespace ITServiceManager.API.Middlewares
                 _ => StatusCodes.Status500InternalServerError
             };
 
-            context.Response.ContentType = "applcation/json";
+            context.Response.ContentType = "application/json";
 
             context.Response.StatusCode = statusCode;
 

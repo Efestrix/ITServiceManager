@@ -1,4 +1,5 @@
 ﻿using ITServiceManager.API.Dtos.Authentication;
+using ITServiceManager.API.Dtos.User;
 
 namespace ITServiceManager.API.Services.Interfaces
 {
@@ -7,5 +8,7 @@ namespace ITServiceManager.API.Services.Interfaces
         Task<LoginResponseDto> LoginAsync(LoginDto dto);
 
         Task RegisterAsync(RegisterDto dto);
+
+        Task<UserDto> GetMeAsync(int userId);
     }
 }
