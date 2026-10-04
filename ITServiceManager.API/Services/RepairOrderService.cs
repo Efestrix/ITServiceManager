@@ -29,12 +29,12 @@ namespace ITServiceManager.API.Services
             bool repairOrderExists = await _context.RepairOrders.AnyAsync(c => c.Id == id);
 
             if (!repairOrderExists)
-                return null;
+                throw new NotFoundException("Repair order does not exist.");
 
             RepairOrderEntity? entity = await _context.RepairOrders.FindAsync(id);
 
             if (entity == null)
-                return null;
+                throw new NotFoundException("Repair order does not exist.");
 
             return RepairOrderMapping.ToDto(entity);
         }
@@ -69,7 +69,7 @@ namespace ITServiceManager.API.Services
         }
         public async Task UpdateAsync(int id, UpdateRepairOrderDto dto)
         {
-            bool repairOrderExists = await _context.Devices.AnyAsync(c => c.Id == id);
+            bool repairOrderExists = await _context.RepairOrders.AnyAsync(c => c.Id == id);
 
             if (!repairOrderExists)
                 throw new NotFoundException("Not Found");

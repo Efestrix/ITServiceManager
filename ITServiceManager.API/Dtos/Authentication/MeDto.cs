@@ -1,6 +1,6 @@
-﻿namespace ITServiceManager.API.Dtos.User
+﻿namespace ITServiceManager.API.Dtos.Authentication
 {
-    public class UserDto
+    public class MeDto
     {
         public int Id { get; set; }
         public string Username { get; set; } = "";

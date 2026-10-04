@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ITServiceManager.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/device")]
     [ApiController]
     public class DeviceController : ControllerBase
     {
@@ -19,15 +20,16 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] DeviceQueryDto queryDto)
         {
-            return Ok(await _service.GetAllAsync());
+            IEnumerable<DeviceDto> devices =
+                await _service.GetAllAsync(queryDto);
+
+            return Ok(devices);
         }
 
-        [HttpGet("id")]
-        [Authorize]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
             DeviceDto? device = await _service.GetByIdAsync(id);
 
@@ -38,8 +40,7 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Create(CreateDeviceDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateDeviceDto dto)
         {
             DeviceDto? createdDevice = await _service.CreateAsync(dto);
 
@@ -51,17 +52,16 @@ namespace ITServiceManager.API.Controllers
                 createdDevice);
         }
 
-        [HttpPut("id")]
-        public async Task<IActionResult> Update(int id, UpdateDeviceDto dto)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateDeviceDto dto)
         {
             await _service.UpdateAsync(id, dto);
 
             return NoContent();
         }
 
-        [HttpDelete("id")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             await _service.DeleteAsync(id);
 

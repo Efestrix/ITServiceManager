@@ -6,6 +6,7 @@ using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services.Interfaces;
 using ITServiceManager.API.Validators;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ITServiceManager.API.Services
 {
@@ -15,13 +16,32 @@ namespace ITServiceManager.API.Services
             : base(context)
         {
         }
-        public async Task<IEnumerable<UserDto>> GetAllAsync()
+        public async Task<IEnumerable<UserDto>> GetAllAsync(
+            UserQueryDto queryDto)
         {
-            List<UserEntity> users = await _context.Users.ToListAsync();
+            IQueryable<UserEntity> users = _context.Users;
 
-            return users
-                .Select(UserMapping.ToDto)
-                .ToList();
+            if (!string.IsNullOrWhiteSpace(queryDto.Username))
+            {
+                users = users.Where(
+                    u => u.Username.Contains(queryDto.Username));
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryDto.Email))
+            {
+                users = users.Where(
+                    u => u.Email.Contains(queryDto.Email));
+            }
+
+            if (queryDto.Role.HasValue)
+            {
+                users = users.Where(
+                    u => u.Role == queryDto.Role.Value);
+            }
+
+            List<UserEntity> result = await users.ToListAsync();
+
+            return result.Select(UserMapping.ToDto);
         }
 
         public async Task<UserDto?> GetByIdAsync(int id)

@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ITServiceManager.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/repair_status")]
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class RepairStatusController : ControllerBase
@@ -23,8 +24,8 @@ namespace ITServiceManager.API.Controllers
             return Ok(await _service.GetAllAsync());
         }
 
-        [HttpGet("id")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
             RepairStatusDto? repairStatus = await _service.GetByIdAsync(id);
 

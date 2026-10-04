@@ -7,7 +7,8 @@ using Pomelo.EntityFrameworkCore.MySql.Query.Internal;
 
 namespace ITServiceManager.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/repair_order")]
     [ApiController]
     [Authorize(Roles = "Admin,Technician")]
     public class RepairOrderController : ControllerBase
@@ -25,8 +26,8 @@ namespace ITServiceManager.API.Controllers
             return Ok(await _service.GetAllAsync());
         }
 
-        [HttpGet("id")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
             RepairOrderDto? repairOrder = await _service.GetByIdAsync(id);
 
@@ -37,7 +38,7 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateRepairOrderDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateRepairOrderDto dto)
         {
             RepairOrderDto createdRepairOrder = await _service.CreateAsync(dto);
             
@@ -49,16 +50,16 @@ namespace ITServiceManager.API.Controllers
                 createdRepairOrder);
         }
 
-        [HttpPut("id")]
-        public async Task<IActionResult> Update(int id, UpdateRepairOrderDto dto)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateRepairOrderDto dto)
         {
             await _service.UpdateAsync(id, dto);
 
             return NoContent();
         }
 
-        [HttpDelete("id")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             await _service.DeleteAsync(id);
 

@@ -5,7 +5,7 @@ namespace ITServiceManager.API.Services.Customer
 {
     public interface ICustomerService
     {
-        Task<IEnumerable<CustomerDto>> GetAllAsync();
+        Task<IEnumerable<CustomerDto>> GetAllAsync(CustomerQueryDto queryDTO);
 
         Task<CustomerDto?> GetByIdAsync(int id);
 

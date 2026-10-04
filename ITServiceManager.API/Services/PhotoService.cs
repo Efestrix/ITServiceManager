@@ -58,6 +58,9 @@ namespace ITServiceManager.API.Services
 
             PhotoEntity? entity = await _context.Photos.FindAsync(id);
 
+            if (entity == null)
+                throw new NotFoundException($"Photo with id {id} was not found.");
+
             await ValidateRepairOrder(dto.RepairOrderId);
 
             PhotoMapping.UpdateEntity(entity, dto);

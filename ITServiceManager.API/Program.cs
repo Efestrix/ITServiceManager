@@ -1,4 +1,3 @@
-
 using ITServiceManager.API.Data;
 using ITServiceManager.API.Middlewares;
 using ITServiceManager.API.Services;
@@ -113,8 +112,6 @@ namespace ITServiceManager.API
             app.UseHttpsRedirection();
 
             app.UseMiddleware<ExceptionMiddleware>();
-
-            app.UseAuthorization();
 
             app.UseAuthentication();
 

@@ -7,6 +7,7 @@ using ITServiceManager.API.Services.Customer;
 using ITServiceManager.API.Validators;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ITServiceManager.API.Services
 {
@@ -16,13 +17,32 @@ namespace ITServiceManager.API.Services
             : base(context)
         {
         }
-        public async Task<IEnumerable<CustomerDto>> GetAllAsync()
+        public async Task<IEnumerable<CustomerDto>> GetAllAsync(
+            CustomerQueryDto queryDTO)
         {
-            List<CustomerEntity> customers = await _context.Customers.ToListAsync();
+            IQueryable<CustomerEntity> customers = _context.Customers;
 
-            return customers
-                .Select(CustomerMapping.ToDto)
-                .ToList();
+            if (!string.IsNullOrEmpty(queryDTO.firstName))
+            {
+                customers = customers.Where(
+                    c => c.FirstName.Contains(queryDTO.firstName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryDTO.lastName))
+            {
+                customers = customers.Where(
+                    c => c.LastName.Contains(queryDTO.lastName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryDTO.Email))
+            {
+                customers = customers.Where(
+                    c => c.Email.Contains(queryDTO.Email));
+            }
+
+            List<CustomerEntity> result = await customers.ToListAsync();
+
+            return result.Select(CustomerMapping.ToDto);
         }
 
         public async Task<CustomerDto?> GetByIdAsync(int id)
@@ -30,12 +50,12 @@ namespace ITServiceManager.API.Services
             bool customerExists = await _context.Customers.AnyAsync(c => c.Id == id);
 
             if (!customerExists)
-                return null;
+                throw new NotFoundException("Customer does not exist.");
 
             CustomerEntity? customer = await _context.Customers.FindAsync(id);
 
             if (customer == null)
-                return null;
+                throw new NotFoundException("Customer does not exist.");
 
             return CustomerMapping.ToDto(customer);
         }

@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ITServiceManager.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/user")]
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
@@ -20,13 +21,17 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAll([FromQuery] UserQueryDto queryDto)
         {
-            return Ok(await _service.GetAllAsync());
+            IEnumerable<UserDto> users = 
+                await _service.GetAllAsync(queryDto);
+
+            return Ok(users);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
             UserDto? user = await _service.GetByIdAsync(id);
 
@@ -36,7 +41,7 @@ namespace ITServiceManager.API.Controllers
             return Ok(user);
         }
         [HttpPost]
-        public async Task<IActionResult> Create(CreateUserDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
         {
             UserDto createdUser = await _service.CreateAsync(dto);
 
@@ -44,15 +49,15 @@ namespace ITServiceManager.API.Controllers
                 new { id = createdUser.Id },
                 createdUser);
         }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateUserDto dto)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserDto dto)
         {
             await _service.UpdateAsync(id, dto);
 
             return NoContent();
         }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             await _service.DeleteAsync(id);
 

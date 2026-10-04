@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ITServiceManager.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/repair_history")]
     [ApiController]
     [Authorize(Roles = "Admin,Technician")]
     public class RepairHistoryController : ControllerBase
@@ -25,7 +26,7 @@ namespace ITServiceManager.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateRepairHistoryDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateRepairHistoryDto dto)
         {
             RepairHistoryDto createdRepairHistory = await _service.CreateAsync(dto);
 
@@ -34,16 +35,16 @@ namespace ITServiceManager.API.Controllers
                 createdRepairHistory);
         }
 
-        [HttpPut("id")]
-        public async Task<IActionResult> Update(int id, UpdateRepairHistoryDto dto)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateRepairHistoryDto dto)
         {
             await _service.UpdateAsync(id, dto);
 
             return NoContent();
         }
 
-        [HttpDelete("id")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             await _service.DeleteAsync(id);
 

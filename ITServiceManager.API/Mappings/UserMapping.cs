@@ -13,7 +13,6 @@ namespace ITServiceManager.API.Mappings
             {
                 Id = entity.Id,
                 Username = entity.Username,
-                PasswordHash = entity.PasswordHash,
                 FirstName = entity.FirstName,
                 LastName = entity.LastName,
                 Email = entity.Email,
@@ -37,7 +36,10 @@ namespace ITServiceManager.API.Mappings
         {
             return new UserEntity
             {
-                PasswordHash = passwordHash
+                Username = dto.Username,
+                Email = dto.Email,
+                PasswordHash = passwordHash, // hash
+                Role = dto.Role ?? UserRole.User
             };
         }
 
