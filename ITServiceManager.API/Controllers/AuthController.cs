@@ -13,7 +13,6 @@ namespace ITServiceManager.API.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    [Authorize]
     public class AuthController : ControllerBase
     {
         private IAuthService _service;
@@ -41,6 +40,8 @@ namespace ITServiceManager.API.Controllers
             return Ok();
         }
 
+        
+        [Authorize]
         [HttpGet("me")]
         public async Task<ActionResult<MeDto>> GetCurrentUser()
         {
