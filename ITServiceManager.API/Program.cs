@@ -6,7 +6,7 @@ using ITServiceManager.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using System.Text;
 
 namespace ITServiceManager.API
@@ -16,6 +16,8 @@ namespace ITServiceManager.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            /* JWT Authentication */
 
             builder.Services.AddAuthentication(options =>
             {
@@ -40,13 +42,22 @@ namespace ITServiceManager.API
                     ValidAudience = builder.Configuration["Jwt:Audience"],
 
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+                        Encoding.UTF8.GetBytes(
+                            builder.Configuration["Jwt:Key"]
+                            ?? throw new InvalidOperationException(
+                                "JWT key is missing from configuration.")))
                 };
             });
 
+            /* Database */
+
             builder.Services.AddDbContext<DatabaseContext>(options =>
             {
-                string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
+                string? connection = 
+                    builder.Configuration.GetConnectionString(
+                        "DefaultConnection")
+                    ?? throw new InvalidOperationException(
+                        "Database connection string is missing.");
 
                 options.UseMySql(
                     connection,
@@ -54,6 +65,8 @@ namespace ITServiceManager.API
             });
 
             builder.Services.AddAuthorization();
+
+            /* Dependency Injection */
 
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IDeviceService, DeviceService>();
@@ -67,6 +80,7 @@ namespace ITServiceManager.API
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -75,7 +89,8 @@ namespace ITServiceManager.API
                     Version = "v1"
                 });
 
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                options.AddSecurityDefinition("Bearer", 
+                    new OpenApiSecurityScheme
                 {
                     Description = "Enter JWT token.\n\nExample: Bearer eyJhbGciOiJIUzI1NiIs...",
                     Name = "Authorization",
@@ -85,21 +100,16 @@ namespace ITServiceManager.API
                     BearerFormat = "JWT"
                 });
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Id = "Bearer",
-                    Type = ReferenceType.SecurityScheme
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-            });
+                options.AddSecurityRequirement(document => 
+                    new OpenApiSecurityRequirement
+                    {
+                        [
+                            new OpenApiSecuritySchemeReference(
+                                "Bearer",
+                                document)
+                        ] = []
+                    });
+                });
 
             var app = builder.Build();
 
