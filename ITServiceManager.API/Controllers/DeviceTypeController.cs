@@ -9,6 +9,7 @@ namespace ITServiceManager.API.Controllers
     [Authorize]
     [Route("api/device_type")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class DeviceTypeController : ControllerBase
     {
         private readonly IDeviceTypeService _service;

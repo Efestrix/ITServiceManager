@@ -9,6 +9,7 @@ namespace ITServiceManager.API.Controllers
     [Authorize]
     [Route("api/repair_status")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class RepairStatusController : ControllerBase
     {
         private readonly IRepairStatusService _service;

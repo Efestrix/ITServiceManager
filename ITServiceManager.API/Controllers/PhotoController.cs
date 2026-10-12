@@ -9,6 +9,7 @@ namespace ITServiceManager.API.Controllers
     [Authorize]
     [Route("api/photo")]
     [ApiController]
+    [Authorize(Roles = "Admin,Technician")]
     public class PhotoController : ControllerBase
     {
         private readonly IPhotoService _service;

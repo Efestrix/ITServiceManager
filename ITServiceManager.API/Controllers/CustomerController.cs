@@ -2,6 +2,7 @@
 using ITServiceManager.API.Dtos.Customer;
 using ITServiceManager.API.Entities;
 using ITServiceManager.API.Services.Customer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

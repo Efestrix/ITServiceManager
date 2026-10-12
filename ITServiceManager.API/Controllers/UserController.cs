@@ -10,6 +10,7 @@ namespace ITServiceManager.API.Controllers
     [Authorize]
     [Route("api/user")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _service;

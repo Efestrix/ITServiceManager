@@ -9,6 +9,7 @@ namespace ITServiceManager.API.Controllers
     [Authorize]
     [Route("api/repair_history")]
     [ApiController]
+    [Authorize(Roles = "Admin,Technician")]
     public class RepairHistoryController : ControllerBase
     {
         private readonly IRepairHistoryService _service;
